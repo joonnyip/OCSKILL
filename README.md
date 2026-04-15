@@ -1,32 +1,165 @@
-# Openclaw
-SKILL For OpenClaw
+# Self-Improving Agent
 
-## Self-Improving Agent — Summary
+> An AI-powered self-improvement tool — capture learnings, visualize knowledge, extract skill patterns, and run multi-agent analysis. All in a single HTML file.
 
-A **single-file, browser-based AI tool** that helps you capture, analyze, and learn from mistakes and insights during AI agent sessions. Powered by Claude (Anthropic API).
-
----
-
-### What It Does
-
-**Dashboard — Learning Capture**
-You paste in what happened — an error, a fix, a skill discovered, a note. Claude instantly analyzes it: categorizes the severity, names the underlying pattern, and gives a recommendation. Builds up a searchable archive over time.
-
-**🐟 Mirofish — Knowledge Graph**
-Turns your list of learnings into a live, animated mind map. Claude finds which learnings are semantically connected, then a physics simulation arranges them into clusters. You see *how* your knowledge is structured, not just what's in it.
-
-**⚡ Skill Patterns — Pattern Library**
-Claude extracts reusable strategy templates from your learnings in the form:
-`When [situation] → Do [action] → Verify [outcome]`
-You can also write your own. Hit "Apply" on any pattern to pre-fill the capture form with it.
-
-**🤖 Claw Multi-Agent — Parallel Analysis**
-Four Claude agents run simultaneously, each with a different job — finding root causes, extracting skills, building templates, finding the single highest-leverage fix. A fifth Coordinator agent reads all four outputs and produces a prioritized improvement plan.
+**Created by [Joon Nyip (Koh)](https://github.com/joonnyip)**  
+MIT License · Powered by Claude (Anthropic)
 
 ---
 
-### Key Facts
+## Features
 
-- **Zero dependencies** — one HTML file, open it in any browser
-- **Your API key, your data** — key stored in sessionStorage only, never transmitted
-- **Created by Joon Nyip (Koh)** — MIT License, open source on GitHub
+### Core — Learning Capture
+Capture learnings, errors, corrections, and notes from your AI agent sessions. Claude analyzes each entry and extracts:
+- Severity level (low / medium / high)
+- Underlying pattern name
+- Actionable recommendation
+- Tags for filtering
+
+Auto-extracts skill patterns every 3 captures.
+
+---
+
+### 🐟 Mirofish — Knowledge Graph
+Enable Mirofish to visualize your learnings as a live, force-directed knowledge graph.
+
+- Claude finds semantic connections between learning nodes
+- Nodes repel each other and edges attract — the graph self-organizes into natural clusters
+- Color-coded by learning type (skill, error, correction, note)
+- Rebuild the graph at any time to incorporate new learnings
+
+---
+
+### ⚡ Skill Patterns — Pattern Library
+Claude extracts reusable strategy templates from your learnings:
+
+```
+When [SITUATION] → Do [ACTION] → Verify [OUTCOME]
+```
+
+- Auto-extracted every 3 learnings
+- Manually add your own custom patterns
+- Apply a pattern to pre-fill the capture form
+- Track usage count per pattern
+
+---
+
+### 🤖 Claw Multi-Agent Improvement
+Four specialized Claude agents run **in parallel**, each analyzing your learnings from a different angle:
+
+| Agent | Focus |
+|---|---|
+| 🔍 Error Detector | Root causes & failure pattern analysis |
+| ⚡ Skill Extractor | Teachable skill identification |
+| 🧱 Pattern Builder | Generalizable improvement templates |
+| 🚀 Optimizer | Highest-leverage improvement actions |
+
+A fifth **Coordinator** agent synthesizes all four outputs into a prioritized improvement plan.
+
+---
+
+## Quick Start
+
+### Option 1 — Open directly in browser
+
+1. Download `index.html`
+2. Open it in any modern browser (Chrome, Firefox, Safari, Edge)
+3. Enter your [Anthropic API key](https://console.anthropic.com) when prompted
+4. Start capturing learnings
+
+### Option 2 — Clone and serve locally
+
+```bash
+git clone https://github.com/joonnyip/self-improving-agent.git
+cd self-improving-agent
+
+# Any static server works — e.g. Python:
+python3 -m http.server 8080
+
+# Then open http://localhost:8080
+```
+
+### Option 3 — Deploy to GitHub Pages
+
+1. Fork this repository
+2. Go to **Settings → Pages**
+3. Set source to `main` branch, `/ (root)`
+4. Your app is live at `https://<username>.github.io/self-improving-agent/`
+
+---
+
+## API Key
+
+This app calls the Claude API directly from your browser.
+
+- Your key is stored in `sessionStorage` — it is never logged, transmitted, or stored permanently
+- You need an [Anthropic API key](https://console.anthropic.com) — standard pay-as-you-go pricing applies
+- Each capture costs roughly $0.001–0.003 in API credits depending on length
+- Click the ⚙ settings button at any time to update your key
+
+---
+
+## Project Structure
+
+```
+self-improving-agent/
+├── index.html          # The entire app (single file, zero dependencies)
+├── README.md           # This file
+├── LICENSE             # MIT License
+├── CONTRIBUTING.md     # How to contribute
+└── CHANGELOG.md        # Version history
+```
+
+The entire application is a single HTML file with no build step, no npm, no external dependencies beyond Google Fonts (for typography) and the Anthropic API (for AI features).
+
+---
+
+## Browser Requirements
+
+| Browser | Minimum Version |
+|---|---|
+| Chrome / Edge | 90+ |
+| Firefox | 88+ |
+| Safari | 14+ |
+
+Requires an internet connection for:
+- Google Fonts (UI typography)
+- Anthropic API (AI features)
+
+---
+
+## Roadmap
+
+- [ ] LocalStorage persistence across sessions
+- [ ] Export learnings as JSON / Markdown
+- [ ] Import learnings from Claude transcript files
+- [ ] Custom agent prompts
+- [ ] Mirofish zoom & pan
+- [ ] Dark/light theme toggle
+- [ ] Shareable learning packs
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+---
+
+## Credits
+
+Inspired by [self-improving-agent](https://clawhub.ai/pskoett/self-improving-agent) by [@pskoett](https://github.com/pskoett) on ClawHub.
+
+Built on top of [Claude](https://claude.ai) by [Anthropic](https://anthropic.com).
+
+---
+
+## License
+
+MIT License — see [LICENSE](LICENSE) for full text.
+
+Free to use, modify, and redistribute. Attribution appreciated but not required.
+
+---
+
+*Created by Joon Nyip (Koh)*

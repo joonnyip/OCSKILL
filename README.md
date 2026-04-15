@@ -71,7 +71,7 @@ A fifth **Coordinator** agent synthesizes all four outputs into a prioritized im
 
 ```bash
 git clone https://github.com/joonnyip/OCSKILL.git
-cd self-improving-agent
+cd OCSKILL
 
 # Any static server works — e.g. Python:
 python3 -m http.server 8080
@@ -84,7 +84,7 @@ python3 -m http.server 8080
 1. Fork this repository
 2. Go to **Settings → Pages**
 3. Set source to `main` branch, `/ (root)`
-4. Your app is live at `https://<username>.github.io/self-improving-agent/`
+4. Your app is live at `https://<username>.github.io/OCSKILL/`
 
 ---
 
@@ -102,7 +102,7 @@ This app calls the Claude API directly from your browser.
 ## Project Structure
 
 ```
-self-improving-agent/
+OCSKILL
 ├── index.html          # The entire app (single file, zero dependencies)
 ├── README.md           # This file
 ├── LICENSE             # MIT License

@@ -70,7 +70,7 @@ A fifth **Coordinator** agent synthesizes all four outputs into a prioritized im
 ### Option 2 — Clone and serve locally
 
 ```bash
-git clone https://github.com/joonnyip/self-improving-agent.git
+git clone https://github.com/joonnyip/OCSKILL.git
 cd self-improving-agent
 
 # Any static server works — e.g. Python:

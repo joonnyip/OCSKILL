@@ -10,7 +10,9 @@ MIT License · Powered by Claude (Anthropic)
 ## Features
 
 ### Core — Learning Capture
+
 Capture learnings, errors, corrections, and notes from your AI agent sessions. Claude analyzes each entry and extracts:
+
 - Severity level (low / medium / high)
 - Underlying pattern name
 - Actionable recommendation
@@ -21,6 +23,7 @@ Auto-extracts skill patterns every 3 captures.
 ---
 
 ### 🐟 Mirofish — Knowledge Graph
+
 Enable Mirofish to visualize your learnings as a live, force-directed knowledge graph.
 
 - Claude finds semantic connections between learning nodes
@@ -31,6 +34,7 @@ Enable Mirofish to visualize your learnings as a live, force-directed knowledge 
 ---
 
 ### ⚡ Skill Patterns — Pattern Library
+
 Claude extracts reusable strategy templates from your learnings:
 
 ```
@@ -45,6 +49,7 @@ When [SITUATION] → Do [ACTION] → Verify [OUTCOME]
 ---
 
 ### 🤖 Claw Multi-Agent Improvement
+
 Four specialized Claude agents run **in parallel**, each analyzing your learnings from a different angle:
 
 | Agent | Focus |
@@ -102,7 +107,7 @@ This app calls the Claude API directly from your browser.
 ## Project Structure
 
 ```
-OCSKILL
+OCSKILL/
 ├── index.html          # The entire app (single file, zero dependencies)
 ├── README.md           # This file
 ├── LICENSE             # MIT License
@@ -123,6 +128,7 @@ The entire application is a single HTML file with no build step, no npm, no exte
 | Safari | 14+ |
 
 Requires an internet connection for:
+
 - Google Fonts (UI typography)
 - Anthropic API (AI features)
 
@@ -142,7 +148,7 @@ Requires an internet connection for:
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](https://github.com/joonnyip/OCSKILL/blob/main/CONTRIBUTING.md) for guidelines.
 
 ---
 
@@ -156,7 +162,7 @@ Built on top of [Claude](https://claude.ai) by [Anthropic](https://anthropic.com
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for full text.
+MIT License — see [LICENSE](https://github.com/joonnyip/OCSKILL/blob/main/LICENSE) for full text.
 
 Free to use, modify, and redistribute. Attribution appreciated but not required.
 

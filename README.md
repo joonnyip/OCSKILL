@@ -97,7 +97,7 @@ python3 -m http.server 8080
 
 This app calls the Claude API directly from your browser.
 
-- Your key is stored in `sessionStorage` — it is never logged, transmitted, or stored permanently
+- Your key is stored in `localStorage` — it persists across sessions and is never logged, transmitted, or sent to any third party
 - You need an [Anthropic API key](https://console.anthropic.com) — standard pay-as-you-go pricing applies
 - Each capture costs roughly $0.001–0.003 in API credits depending on length
 - Click the ⚙ settings button at any time to update your key
@@ -136,13 +136,23 @@ Requires an internet connection for:
 
 ## Roadmap
 
-- [ ] LocalStorage persistence across sessions
-- [ ] Export learnings as JSON / Markdown
-- [ ] Import learnings from Claude transcript files
-- [ ] Custom agent prompts
-- [ ] Mirofish zoom & pan
-- [ ] Dark/light theme toggle
-- [ ] Shareable learning packs
+### ✅ v4.0.0 — Shipped
+
+- [x] LocalStorage persistence across sessions
+- [x] Export learnings as JSON / Markdown
+- [x] Import learnings from Claude transcript files
+- [x] Custom agent prompts
+- [x] Mirofish zoom & pan
+- [x] Dark/light theme toggle
+- [x] Shareable learning packs
+
+### 🔮 Future Ideas
+
+- [ ] Cloud sync / multi-device via Anthropic Files API
+- [ ] Mirofish node click → expand learning detail
+- [ ] AI-generated weekly digest email
+- [ ] Skill streak tracking (daily capture goal)
+- [ ] Team mode — shared learning graph
 
 ---
 

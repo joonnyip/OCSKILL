@@ -6,6 +6,27 @@ Format: [MAJOR.MINOR.PATCH] — Date — Description
 
 ---
 
+## [4.0.0] — 2026-04-16 — Full Roadmap Release
+
+**Built by Claude (Anthropic) · Authored by Joon Nyip (Koh)**
+
+### New Features
+- **💾 LocalStorage Persistence** — Learnings, patterns, and custom agent prompts persist across browser sessions. Demo data only seeds on first run.
+- **⬇ Export JSON** — Download all learnings + patterns as a structured JSON file.
+- **⬇ Export Markdown** — Download a formatted Markdown report grouped by learning type, with analysis and recommendations included.
+- **⬆ Import Transcript** — Upload any Claude transcript (.txt / .md / .json). Claude extracts key learnings automatically.
+- **✏️ Custom Agent Prompts** — Edit each of the 4 Claw agent system prompts directly in the UI. Changes persist. Reset to defaults at any time.
+- **🔍 Mirofish Zoom & Pan** — Mouse wheel to zoom, drag to pan. +/−/⊙ overlay controls. Zoom state preserved across rebuilds.
+- **☀/🌙 Dark/Light Theme Toggle** — Full light theme with adapted colors. Toggle persists via localStorage.
+- **📦 Shareable Learning Packs** — Export your learnings + patterns as a `.json` pack file. Others can import it to bootstrap from your knowledge base.
+
+### Bug Fixes
+- **BUG-SESSION** Fixed: API key was stored in `sessionStorage` — lost on every browser close. Migrated to `localStorage`.
+- **BUG-MIRO-CLEAR** Fixed: Mirofish clear/rebuild was clobbering zoom control DOM nodes via `innerHTML`. Now uses targeted DOM removal.
+- **BUG-DEMO-OVERWRITE** Fixed: Demo learnings were injected on every init(), overwriting any stored data. Now only seeds on first run (empty storage).
+
+---
+
 ## [3.0.0] — 2025 — Initial Open Source Release
 
 **Created by Joon Nyip (Koh)**

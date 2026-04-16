@@ -254,6 +254,31 @@ select{background:var(--bg2);border:1px solid var(--border2);border-radius:var(-
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:99px}
+
+/* ── Light Theme ────────────────────────────────────────────────────────── */
+body.light{
+  --bg:#f0f4f8;--bg1:#ffffff;--bg2:#f5f7fa;--bg3:#e8ecf2;--bg4:#d0d7e3;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);--border3:rgba(0,0,0,0.22);
+  --t0:#0d1117;--t1:#4a5568;--t2:#8896ab;
+}
+body.light::before{
+  background:radial-gradient(ellipse at 20% 0%,rgba(0,180,90,0.06) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 100%,rgba(56,130,200,0.06) 0%,transparent 60%);
+}
+body.light .topbar{background:rgba(240,244,248,0.95)}
+body.light textarea,body.light input[type=text],body.light input[type=password],
+body.light select{background:var(--bg1);color:var(--t0)}
+
+/* ── Mirofish zoom overlay ──────────────────────────────────────────────── */
+.miro-zoom-controls{position:absolute;top:10px;right:10px;z-index:10;
+  display:flex;flex-direction:column;gap:4px}
+
+/* ── Agent prompt editor ────────────────────────────────────────────────── */
+.agent-prompt-row{background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--rad);padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.agent-prompt-label{font-family:var(--mono);font-size:10px;color:var(--t2);
+  display:flex;align-items:center;gap:6px}
+.agent-prompt-row textarea{min-height:64px;font-size:11px;resize:vertical}
 </style>
 </head>
 <body>
@@ -265,7 +290,7 @@ select{background:var(--bg2);border:1px solid var(--border2);border-radius:var(-
     <div class="modal-title">Enter your Anthropic API Key</div>
     <div class="modal-sub">
       This app calls the Claude API directly from your browser. Your key is stored in
-      <code style="font-size:11px;color:var(--c)">sessionStorage</code> and never sent anywhere else.
+      <code style="font-size:11px;color:var(--c)">localStorage</code> and never sent anywhere else.
     </div>
     <div class="modal-label">API Key</div>
     <div class="key-row">
@@ -302,7 +327,8 @@ select{background:var(--bg2);border:1px solid var(--border2);border-radius:var(-
     <div class="topbar-right">
       <div class="status-pip"></div>
       <span style="font-family:var(--mono);font-size:10px;color:var(--g)">ACTIVE</span>
-      <span class="badge badge-g">v3.0.0</span>
+      <span class="badge badge-g">v4.0.0</span>
+      <button class="btn-icon" onclick="toggleTheme()" id="theme-btn" title="Toggle theme">☀</button>
       <button class="btn-icon" onclick="openSettings()" title="API Settings">⚙</button>
     </div>
   </header>
@@ -406,6 +432,11 @@ select{background:var(--bg2);border:1px solid var(--border2);border-radius:var(-
               <option value="correction">Corrections</option>
               <option value="note">Notes</option>
             </select>
+            <button class="btn btn-c" onclick="exportJSON()" title="Download as JSON">⬇ JSON</button>
+            <button class="btn btn-c" onclick="exportMarkdown()" title="Download as Markdown">⬇ MD</button>
+            <label class="btn btn-o" title="Import Claude transcript" style="cursor:pointer">
+              ⬆ TRANSCRIPT<input type="file" accept=".txt,.md,.json" style="display:none" onchange="importTranscript(event)">
+            </label>
             <button class="btn btn-p" onclick="extractPatterns()" id="extract-btn">⚡ EXTRACT PATTERNS</button>
           </div>
         </div>
@@ -415,7 +446,19 @@ select{background:var(--bg2);border:1px solid var(--border2);border-radius:var(-
       </div>
     </div>
 
-    <!-- ── MIROFISH ───────────────────────────────────────────────────── -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📦 SHAREABLE LEARNING PACK</div>
+        </div>
+        <p style="font-size:12px;color:var(--t1);margin-bottom:12px;line-height:1.6">Export your learnings + patterns as a shareable pack. Others can import it to bootstrap from your knowledge.</p>
+        <div class="flex-row">
+          <button class="btn btn-g" onclick="exportPack()">⬇ EXPORT PACK</button>
+          <label class="btn btn-c" style="cursor:pointer">
+            ⬆ IMPORT PACK<input type="file" accept=".json" style="display:none" onchange="importPack(event)">
+          </label>
+          <span id="pack-status" style="font-family:var(--mono);font-size:10px;color:var(--t2)"></span>
+        </div>
+      </div>
     <div id="panel-mirofish" class="panel">
       <div class="card">
         <div class="card-header">
@@ -434,7 +477,12 @@ select{background:var(--bg2);border:1px solid var(--border2);border-radius:var(-
           Mirofish maps your learnings into a live force-directed knowledge graph. Claude finds semantic
           connections between concepts — surfacing patterns invisible in list form.
         </p>
-        <div id="miro-canvas">
+        <div id="miro-canvas" style="position:relative">
+          <div class="miro-zoom-controls">
+            <button class="btn-icon" onclick="miroZoom(0.15)" title="Zoom in">+</button>
+            <button class="btn-icon" onclick="miroZoom(-0.15)" title="Zoom out">−</button>
+            <button class="btn-icon" onclick="miroResetView()" title="Reset view">⊙</button>
+          </div>
           <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--t2);font-family:var(--mono);font-size:11px">
             <span style="font-size:36px">🐟</span>
             Enable Mirofish to visualize your knowledge graph
@@ -487,6 +535,15 @@ select{background:var(--bg2);border:1px solid var(--border2);border-radius:var(-
         <div class="agents-grid" id="agents-grid"></div>
       </div>
 
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">✏️ CUSTOM AGENT PROMPTS</div>
+          <button class="btn btn-c" onclick="resetAgentPrompts()">↺ RESET DEFAULTS</button>
+        </div>
+        <p style="font-size:12px;color:var(--t1);margin-bottom:12px;line-height:1.6">Customize the system prompt for each agent. Changes persist across sessions.</p>
+        <div id="agent-prompt-list" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+
       <div class="card" id="coord-card" style="display:none">
         <div class="card-header">
           <div class="card-title">🔗 COORDINATOR SYNTHESIS</div>
@@ -532,7 +589,27 @@ function now() {
 }
 
 /* ── API Key Management ──────────────────────────────────────────────── */
-let API_KEY = sessionStorage.getItem('sia_api_key') || '';
+let API_KEY = localStorage.getItem('sia_api_key') || '';
+
+/* ── Persistence ─────────────────────────────────────────────────────── */
+function saveToStorage() {
+  try {
+    localStorage.setItem('sia_learnings', JSON.stringify(S.learnings));
+    localStorage.setItem('sia_patterns',  JSON.stringify(S.patterns));
+    localStorage.setItem('sia_agent_prompts', JSON.stringify(S.agentPrompts));
+  } catch(_) {}
+}
+
+function loadFromStorage() {
+  try {
+    const l = localStorage.getItem('sia_learnings');
+    const p = localStorage.getItem('sia_patterns');
+    const ap = localStorage.getItem('sia_agent_prompts');
+    if (l) S.learnings = JSON.parse(l);
+    if (p) S.patterns  = JSON.parse(p);
+    if (ap) S.agentPrompts = { ...S.agentPrompts, ...JSON.parse(ap) };
+  } catch(_) {}
+}
 
 function toggleKeyVisibility() {
   const inp = document.getElementById('api-key-input');
@@ -548,7 +625,7 @@ function saveApiKey() {
     return;
   }
   API_KEY = val;
-  sessionStorage.setItem('sia_api_key', val);
+  localStorage.setItem('sia_api_key', val);
   document.getElementById('api-modal').classList.add('hidden');
   addActivity('API key saved — agent ready', 'g');
 }
@@ -599,9 +676,17 @@ const S = {
   miroEnabled: false,
   miroNodes: [],
   miroEdges: [],
+  miroScale: 1,
+  miroPan: { x: 0, y: 0 },
   feed: [],
   sessionCount: 0,
   sessionErrors: 0,
+  agentPrompts: {
+    'error-detector':  'You are the Error Detector agent. Analyze learnings and identify the top 3 recurring failure patterns, their root causes, and concrete prevention strategies. Be specific and technical. Max 200 words.',
+    'skill-extractor': 'You are the Skill Extractor agent. From these learnings, identify 3 teachable skills that would prevent these issues. Format each as:\nSKILL NAME: [name]\nWhen: [trigger]\nAction: [what to do]\nMax 200 words.',
+    'pattern-builder': 'You are the Pattern Builder agent. Synthesize these learnings into 2–3 generalized improvement templates. Format each as:\nTEMPLATE: When [X] happens → Do [Y] → Verify [Z]\nMax 200 words.',
+    'optimizer':       'You are the Optimizer agent. Identify the SINGLE highest-leverage action that would produce the most improvement the fastest, based on all learnings. Be bold and specific. Max 150 words.'
+  },
   agents: [
     { id: 'error-detector',  name: 'Error Detector',  specialty: 'Root cause & failure pattern analysis', icon: '🔍', colorVar: '--r', status: 'idle', log: [] },
     { id: 'skill-extractor', name: 'Skill Extractor', specialty: 'Extract teachable skill patterns',       icon: '⚡', colorVar: '--p', status: 'idle', log: [] },
@@ -659,6 +744,7 @@ async function captureLearning() {
     renderLearnings();
     renderRecentList();
     addActivity(`Captured: ${escapeHtml(analysis.summary)}`, 'g');
+    saveToStorage();
 
     // Auto-extract patterns every 3 captures
     if (S.learnings.length > 0 && S.learnings.length % 3 === 0) {
@@ -798,7 +884,12 @@ async function buildMirofish() {
   rebuildBtn.innerHTML = '<div class="spinner"></div> BUILDING…';
 
   const canvasEl = document.getElementById('miro-canvas');
-  canvasEl.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--t2);font-family:var(--mono);font-size:11px"><div class="spinner"></div>Claude is mapping connections…</div>`;
+  // Remove old SVG/placeholder, keep zoom controls div
+  Array.from(canvasEl.children).forEach(c => { if (!c.classList.contains('miro-zoom-controls')) c.remove(); });
+  const loadingDiv = document.createElement('div');
+  loadingDiv.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--t2);font-family:var(--mono);font-size:11px';
+  loadingDiv.innerHTML = '<div class="spinner"></div>Claude is mapping connections…';
+  canvasEl.appendChild(loadingDiv);
   addActivity('Mirofish: Building knowledge graph…', 'c');
 
   // Position all learnings as nodes
@@ -840,13 +931,16 @@ async function buildMirofish() {
 function renderMiro() {
   const canvasEl = document.getElementById('miro-canvas');
   if (!S.miroNodes.length) { clearMiroCanvas(); return; }
+  // Remove old SVG and placeholders, keep zoom controls
+  Array.from(canvasEl.children).forEach(c => { if (!c.classList.contains('miro-zoom-controls')) c.remove(); });
 
   let svg = `<svg id="miro-svg" viewBox="0 0 ${MIRO_W} ${MIRO_H}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
 <defs>
   <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
     <path d="M0,0 L7,3 L0,6 Z" fill="rgba(255,255,255,0.18)"/>
   </marker>
-</defs>`;
+</defs>
+<g id="miro-world" transform="translate(${S.miroPan.x},${S.miroPan.y}) scale(${S.miroScale})">`;
 
   // Edges
   S.miroEdges.forEach(e => {
@@ -867,8 +961,8 @@ function renderMiro() {
 </g>`;
   });
 
-  svg += '</svg>';
-  canvasEl.innerHTML = svg;
+  svg += '</g></svg>';
+  canvasEl.insertAdjacentHTML('beforeend', svg);
   startForce();
 
   // Legend
@@ -943,10 +1037,18 @@ function startForce() {
 }
 
 function clearMiroCanvas() {
-  document.getElementById('miro-canvas').innerHTML =
-    `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--t2);font-family:var(--mono);font-size:11px">
-      <span style="font-size:36px">🐟</span>Enable Mirofish to visualize your knowledge graph
-    </div>`;
+  const canvas = document.getElementById('miro-canvas');
+  // Remove old SVG only, keep zoom controls
+  const old = canvas.querySelector('svg');
+  if (old) old.remove();
+  // Remove placeholder if any
+  const ph = canvas.querySelector('[data-miro-ph]');
+  if (ph) ph.remove();
+  const div = document.createElement('div');
+  div.setAttribute('data-miro-ph', '1');
+  div.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:var(--t2);font-family:var(--mono);font-size:11px';
+  div.innerHTML = '<span style="font-size:36px">🐟</span>Enable Mirofish to visualize your knowledge graph';
+  canvas.appendChild(div);
   document.getElementById('miro-legend').innerHTML = '';
 }
 
@@ -984,6 +1086,7 @@ async function extractPatterns() {
     renderPatterns();
     updateStats();
     addActivity(`Extracted ${added} new pattern${added !== 1 ? 's' : ''}`, 'p');
+    saveToStorage();
   } catch (e) {
     addActivity('Pattern extraction failed: ' + escapeHtml(e.message), 'r');
   }
@@ -1003,6 +1106,7 @@ function addCustomPattern() {
   renderPatterns();
   updateStats();
   addActivity('Custom pattern added: ' + escapeHtml(name), 'p');
+  saveToStorage();
 }
 
 function applyPattern(id) {
@@ -1039,12 +1143,6 @@ function renderPatterns() {
 }
 
 /* ── Multi-Agent ─────────────────────────────────────────────────────── */
-const AGENT_SYSTEM = {
-  'error-detector':  'You are the Error Detector agent. Analyze learnings and identify the top 3 recurring failure patterns, their root causes, and concrete prevention strategies. Be specific and technical. Max 200 words.',
-  'skill-extractor': 'You are the Skill Extractor agent. From these learnings, identify 3 teachable skills that would prevent these issues. Format each as:\nSKILL NAME: [name]\nWhen: [trigger]\nAction: [what to do]\nMax 200 words.',
-  'pattern-builder': 'You are the Pattern Builder agent. Synthesize these learnings into 2–3 generalized improvement templates. Format each as:\nTEMPLATE: When [X] happens → Do [Y] → Verify [Z]\nMax 200 words.',
-  'optimizer':       'You are the Optimizer agent. Identify the SINGLE highest-leverage action that would produce the most improvement the fastest, based on all learnings. Be bold and specific. Max 150 words.'
-};
 
 const AGENT_AVG_COLOR = { '--r': 'rgba(248,113,113,0.1)', '--p': 'rgba(167,139,250,0.1)', '--c': 'rgba(56,189,248,0.1)', '--o': 'rgba(251,146,60,0.1)' };
 const AGENT_BORDER    = { '--r': 'rgba(248,113,113,0.25)', '--p': 'rgba(167,139,250,0.25)', '--c': 'rgba(56,189,248,0.25)', '--o': 'rgba(251,146,60,0.25)' };
@@ -1125,7 +1223,7 @@ async function runMultiAgent() {
     appendAgentLog(agent.id, `> Initializing ${agent.name}…`);
     appendAgentLog(agent.id, `> Analyzing ${S.learnings.length} learnings…`);
     try {
-      const result = await callClaude(AGENT_SYSTEM[agent.id], `Learnings:\n${learningsSummary}`);
+      const result = await callClaude(S.agentPrompts[agent.id], `Learnings:\n${learningsSummary}`);
       appendAgentLog(agent.id, result, 'result');
       setAgentStatus(agent.id, 'done');
       addActivity(`${agent.name} completed`, 'g');
@@ -1172,8 +1270,226 @@ function renderSidebarAgents() {
 </div>`).join('');
 }
 
+/* ── Theme Toggle ────────────────────────────────────────────────────── */
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('theme-btn').textContent = isLight ? '🌙' : '☀';
+  localStorage.setItem('sia_theme', isLight ? 'light' : 'dark');
+}
+
+/* ── Export JSON ─────────────────────────────────────────────────────── */
+function exportJSON() {
+  if (!S.learnings.length) { addActivity('Nothing to export yet', 'r'); return; }
+  const data = JSON.stringify({ learnings: S.learnings, patterns: S.patterns, exportedAt: new Date().toISOString() }, null, 2);
+  downloadFile('ocskill-learnings.json', data, 'application/json');
+  addActivity(`Exported ${S.learnings.length} learnings as JSON`, 'g');
+}
+
+/* ── Export Markdown ─────────────────────────────────────────────────── */
+function exportMarkdown() {
+  if (!S.learnings.length) { addActivity('Nothing to export yet', 'r'); return; }
+  const lines = [
+    '# OCSKILL Learnings Export',
+    `> Exported ${new Date().toLocaleDateString()} · ${S.learnings.length} learnings\n`
+  ];
+  const groups = {};
+  S.learnings.forEach(l => { (groups[l.type] = groups[l.type] || []).push(l); });
+  Object.entries(groups).forEach(([type, items]) => {
+    lines.push(`## ${type.toUpperCase()}S (${items.length})\n`);
+    items.forEach(l => {
+      const a = l.analysis || {};
+      lines.push(`### ${a.pattern || type} · \`${a.severity || 'unknown'}\``);
+      lines.push(`${l.text}\n`);
+      if (a.summary) lines.push(`> ↳ ${a.summary}`);
+      if (a.recommendation) lines.push(`> 💡 ${a.recommendation}`);
+      if (a.tags?.length) lines.push(`\n**Tags:** ${a.tags.join(', ')}`);
+      lines.push('');
+    });
+  });
+  if (S.patterns.length) {
+    lines.push('## SKILL PATTERNS\n');
+    S.patterns.forEach(p => {
+      lines.push(`### ⚡ ${p.name}`);
+      if (p.description) lines.push(p.description);
+      if (p.template)    lines.push(`\`\`\`\n${p.template}\n\`\`\``);
+      lines.push('');
+    });
+  }
+  downloadFile('ocskill-learnings.md', lines.join('\n'), 'text/markdown');
+  addActivity(`Exported ${S.learnings.length} learnings as Markdown`, 'g');
+}
+
+/* ── Import Claude Transcript ────────────────────────────────────────── */
+async function importTranscript(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  evt.target.value = '';
+  addActivity(`Parsing transcript: ${file.name}…`, 'c');
+
+  const text = await file.text();
+  const btn = document.getElementById('extract-btn');
+  btn.disabled = true;
+
+  try {
+    const raw = await callClaude(
+      `You are extracting learnings from a Claude transcript. Find key skills learned, errors made, corrections applied, and notable notes. Return ONLY a JSON array (no markdown):
+[{"text":"what was learned","type":"skill|error|correction|note"}]
+Extract 3–10 items max. Focus on concrete, actionable learnings.`,
+      `Transcript excerpt (first 3000 chars):\n${text.slice(0, 3000)}`
+    );
+    let items = [];
+    try { items = JSON.parse(raw.replace(/```json|```/g, '').trim()); } catch(_) {}
+    let added = 0;
+    for (const item of items) {
+      if (!item.text) continue;
+      const analysis = { summary: item.text.slice(0, 80), category: item.type, severity: 'medium', pattern: 'Transcript-Import', recommendation: 'Review and refine.', tags: ['imported', item.type] };
+      S.learnings.unshift({ id: uid(), text: item.text, type: item.type || 'note', analysis, timestamp: now() });
+      S.sessionCount++; added++;
+    }
+    saveToStorage();
+    updateStats(); renderLearnings(); renderRecentList();
+    addActivity(`Imported ${added} learnings from transcript`, 'g');
+  } catch(e) {
+    addActivity('Import failed: ' + escapeHtml(e.message), 'r');
+  }
+  btn.disabled = false;
+}
+
+/* ── Shareable Learning Pack ─────────────────────────────────────────── */
+function exportPack() {
+  if (!S.learnings.length && !S.patterns.length) { addActivity('Nothing to pack yet', 'r'); return; }
+  const pack = {
+    _type: 'ocskill-pack',
+    _version: '1.0',
+    _exportedAt: new Date().toISOString(),
+    _count: { learnings: S.learnings.length, patterns: S.patterns.length },
+    learnings: S.learnings,
+    patterns:  S.patterns
+  };
+  downloadFile('ocskill-pack.json', JSON.stringify(pack, null, 2), 'application/json');
+  document.getElementById('pack-status').textContent = `✓ Pack exported (${S.learnings.length} learnings, ${S.patterns.length} patterns)`;
+  addActivity(`Pack exported — ${S.learnings.length} learnings + ${S.patterns.length} patterns`, 'g');
+}
+
+async function importPack(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  evt.target.value = '';
+  try {
+    const pack = JSON.parse(await file.text());
+    if (pack._type !== 'ocskill-pack') { addActivity('Invalid pack file', 'r'); return; }
+    let lAdded = 0, pAdded = 0;
+    (pack.learnings || []).forEach(l => {
+      if (!S.learnings.find(x => x.id === l.id)) { S.learnings.push(l); lAdded++; }
+    });
+    (pack.patterns || []).forEach(p => {
+      if (!S.patterns.find(x => x.name === p.name)) { S.patterns.push(p); pAdded++; }
+    });
+    saveToStorage();
+    updateStats(); renderLearnings(); renderRecentList(); renderPatterns();
+    const msg = `Pack imported: +${lAdded} learnings, +${pAdded} patterns`;
+    document.getElementById('pack-status').textContent = '✓ ' + msg;
+    addActivity(msg, 'g');
+  } catch(e) {
+    addActivity('Pack import failed: ' + escapeHtml(e.message), 'r');
+  }
+}
+
+/* ── Download helper ─────────────────────────────────────────────────── */
+function downloadFile(name, content, mime) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+/* ── Mirofish Zoom & Pan ─────────────────────────────────────────────── */
+function miroZoom(delta) {
+  S.miroScale = Math.max(0.3, Math.min(3, S.miroScale + delta));
+  applyMiroTransform();
+}
+
+function miroResetView() {
+  S.miroScale = 1; S.miroPan = { x: 0, y: 0 };
+  applyMiroTransform();
+}
+
+function applyMiroTransform() {
+  const world = document.getElementById('miro-world');
+  if (world) world.setAttribute('transform', `translate(${S.miroPan.x},${S.miroPan.y}) scale(${S.miroScale})`);
+}
+
+function initMiroPan() {
+  const canvas = document.getElementById('miro-canvas');
+  if (!canvas) return;
+  let dragging = false, startX = 0, startY = 0, startPan = { x: 0, y: 0 };
+
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    miroZoom(e.deltaY < 0 ? 0.1 : -0.1);
+  }, { passive: false });
+
+  canvas.addEventListener('mousedown', e => {
+    if (e.target.closest('.miro-zoom-controls')) return;
+    dragging = true; startX = e.clientX; startY = e.clientY;
+    startPan = { ...S.miroPan };
+  });
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    S.miroPan.x = startPan.x + (e.clientX - startX);
+    S.miroPan.y = startPan.y + (e.clientY - startY);
+    applyMiroTransform();
+  });
+  window.addEventListener('mouseup', () => { dragging = false; });
+}
+
+/* ── Custom Agent Prompts ────────────────────────────────────────────── */
+const DEFAULT_AGENT_PROMPTS = {
+  'error-detector':  'You are the Error Detector agent. Analyze learnings and identify the top 3 recurring failure patterns, their root causes, and concrete prevention strategies. Be specific and technical. Max 200 words.',
+  'skill-extractor': 'You are the Skill Extractor agent. From these learnings, identify 3 teachable skills that would prevent these issues. Format each as:\nSKILL NAME: [name]\nWhen: [trigger]\nAction: [what to do]\nMax 200 words.',
+  'pattern-builder': 'You are the Pattern Builder agent. Synthesize these learnings into 2–3 generalized improvement templates. Format each as:\nTEMPLATE: When [X] happens → Do [Y] → Verify [Z]\nMax 200 words.',
+  'optimizer':       'You are the Optimizer agent. Identify the SINGLE highest-leverage action that would produce the most improvement the fastest, based on all learnings. Be bold and specific. Max 150 words.'
+};
+
+function renderAgentPrompts() {
+  const el = document.getElementById('agent-prompt-list');
+  if (!el) return;
+  el.innerHTML = S.agents.map(a => `
+<div class="agent-prompt-row">
+  <div class="agent-prompt-label">
+    <span>${a.icon}</span>
+    <span style="color:var(--t0)">${a.name}</span>
+    <span>— system prompt</span>
+  </div>
+  <textarea id="aprompt-${a.id}" onchange="saveAgentPrompt('${a.id}')">${escapeHtml(S.agentPrompts[a.id])}</textarea>
+</div>`).join('');
+}
+
+function saveAgentPrompt(id) {
+  const val = document.getElementById('aprompt-' + id)?.value.trim();
+  if (val) { S.agentPrompts[id] = val; saveToStorage(); addActivity(`Updated prompt: ${id}`, 'c'); }
+}
+
+function resetAgentPrompts() {
+  S.agentPrompts = { ...DEFAULT_AGENT_PROMPTS };
+  saveToStorage();
+  renderAgentPrompts();
+  addActivity('Agent prompts reset to defaults', 'c');
+}
+
 /* ── Init ────────────────────────────────────────────────────────────── */
 function init() {
+  // Load persisted data
+  loadFromStorage();
+
+  // Apply saved theme
+  const savedTheme = localStorage.getItem('sia_theme');
+  if (savedTheme === 'light') {
+    document.body.classList.add('light');
+    document.getElementById('theme-btn').textContent = '🌙';
+  }
+
   // Show API modal if no key stored
   if (!API_KEY) {
     document.getElementById('api-modal').classList.remove('hidden');
@@ -1183,39 +1499,50 @@ function init() {
 
   renderSidebarAgents();
   renderAgentCards();
+  renderAgentPrompts();
   updateStats();
-  addActivity('Self-Improving Agent initialized', 'g');
-  addActivity('Ready to capture learnings', 'c');
+  initMiroPan();
 
-  // Seed demo data
-  const demos = [
-    {
-      text: 'When running bash commands that modify files, always verify the change was applied correctly before proceeding to the next step.',
-      type: 'skill',
-      analysis: { summary: 'Always verify file changes after bash execution', category: 'skill', severity: 'medium', pattern: 'Verify-Before-Continue', recommendation: 'Add explicit verification steps after any file modification command.', tags: ['bash', 'verification', 'file-ops'] }
-    },
-    {
-      text: 'Used cat on a binary file which flooded the terminal — should have checked the file type with `file` command first.',
-      type: 'error',
-      analysis: { summary: 'Binary file read without type check caused terminal flood', category: 'error', severity: 'high', pattern: 'File-Type-Detection', recommendation: 'Always run `file` or `head -c 8 | xxd` before reading unknown files.', tags: ['binary', 'terminal', 'detection'] }
-    },
-    {
-      text: 'Installed a package without --break-system-packages flag on Ubuntu 24 — pip install failed with externally managed environment error.',
-      type: 'correction',
-      analysis: { summary: 'pip install needs --break-system-packages on Ubuntu 24', category: 'correction', severity: 'low', pattern: 'Platform-Specific-Flags', recommendation: 'Always use `pip install X --break-system-packages` on Ubuntu 24+.', tags: ['pip', 'ubuntu', 'linux'] }
-    }
-  ];
+  if (S.learnings.length > 0) {
+    renderLearnings();
+    renderRecentList();
+    renderPatterns();
+    addActivity(`Loaded ${S.learnings.length} learnings from storage`, 'g');
+  } else {
+    addActivity('Self-Improving Agent initialized', 'g');
+    addActivity('Ready to capture learnings', 'c');
 
-  demos.forEach((d, i) => {
-    setTimeout(() => {
-      S.learnings.unshift({ id: uid(), ...d, timestamp: now() });
-      S.sessionCount++;
-      if (d.type === 'error') S.sessionErrors++;
-      updateStats();
-      renderLearnings();
-      renderRecentList();
-    }, 400 + i * 350);
-  });
+    // Seed demo data only on first run
+    const demos = [
+      {
+        text: 'When running bash commands that modify files, always verify the change was applied correctly before proceeding to the next step.',
+        type: 'skill',
+        analysis: { summary: 'Always verify file changes after bash execution', category: 'skill', severity: 'medium', pattern: 'Verify-Before-Continue', recommendation: 'Add explicit verification steps after any file modification command.', tags: ['bash', 'verification', 'file-ops'] }
+      },
+      {
+        text: 'Used cat on a binary file which flooded the terminal — should have checked the file type with `file` command first.',
+        type: 'error',
+        analysis: { summary: 'Binary file read without type check caused terminal flood', category: 'error', severity: 'high', pattern: 'File-Type-Detection', recommendation: 'Always run `file` or `head -c 8 | xxd` before reading unknown files.', tags: ['binary', 'terminal', 'detection'] }
+      },
+      {
+        text: 'Installed a package without --break-system-packages flag on Ubuntu 24 — pip install failed with externally managed environment error.',
+        type: 'correction',
+        analysis: { summary: 'pip install needs --break-system-packages on Ubuntu 24', category: 'correction', severity: 'low', pattern: 'Platform-Specific-Flags', recommendation: 'Always use `pip install X --break-system-packages` on Ubuntu 24+.', tags: ['pip', 'ubuntu', 'linux'] }
+      }
+    ];
+
+    demos.forEach((d, i) => {
+      setTimeout(() => {
+        S.learnings.unshift({ id: uid(), ...d, timestamp: now() });
+        S.sessionCount++;
+        if (d.type === 'error') S.sessionErrors++;
+        updateStats();
+        renderLearnings();
+        renderRecentList();
+        if (i === demos.length - 1) saveToStorage();
+      }, 400 + i * 350);
+    });
+  }
 
   // FIX BUG-08: Store interval reference for cleanup
   S._sidebarInterval = setInterval(renderSidebarAgents, 1500);
